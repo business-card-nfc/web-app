@@ -1,12 +1,13 @@
 import { GetServerSideProps } from "next";
 import { CardData, Card } from "../../src/types";
 
-export async function getServerSideProps(context: GetServerSideProps) {
-  const cardId = context.query.id;
-  console.log({ cardId });
-
+export async function getServerSideProps({
+  query: { id },
+}: {
+  query: { id: string };
+}) {
   const res = await fetch(
-    process.env.API_ENDPOINT_URL + `/items/cards/${cardId}`
+    process.env.API_ENDPOINT_URL + `/items/cards/${id}`
   );
   const { data }: CardData = await res.json();
   console.log("getServerSideProps");
