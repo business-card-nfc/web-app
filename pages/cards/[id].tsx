@@ -9,27 +9,39 @@ export async function getServerSideProps({
   const res = await fetch(
     process.env.NEXT_PUBLIC_API_ENDPOINT_URL + `/items/cards/${id}`
   );
-  const { data }: CardData = await res.json();
-  console.log("getServerSideProps");
-  console.log({ data });
 
-  return { props: { data } };
+  try {
+    const { data }: CardData = await res.json();
+    return { props: { data } };
+  } catch (e: any) {
+    console.error(e);
+    return { props: { data: null, errorMessage: e.message } };
+  }
 }
 
 type Props = {
-  data: Card;
+  data: Card | null;
+  errorMessage: string | null;
 };
 
-function PageCardsShow({ data }: Props) {
+function PageCardsShow({ data, errorMessage }: Props) {
   console.log("PageCardsShow");
   console.log({ data });
-  return (
-    <ul>
-      <li>{data.username}</li>
-      <li>{data.email}</li>
-      <li>{data.full_name}</li>
-    </ul>
-  );
+  console.log({ errorMessage });
+
+  if (errorMessage) {
+    return <p>{errorMessage}</p>;
+  }
+
+  if (data) {
+    return (
+      <ul>
+        <li>{data.username}</li>
+        <li>{data.email}</li>
+        <li>{data.full_name}</li>
+      </ul>
+    );
+  }
 }
 
 export default PageCardsShow;
