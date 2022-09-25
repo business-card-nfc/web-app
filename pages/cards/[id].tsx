@@ -7,7 +7,7 @@ export async function getServerSideProps({
   query: { id: string };
 }) {
   const res = await fetch(
-    process.env.API_ENDPOINT_URL + `/items/cards/${id}`
+    process.env.NEXT_PUBLIC_API_ENDPOINT_URL + `/items/cards/${id}`
   );
   const { data }: CardData = await res.json();
   console.log("getServerSideProps");
