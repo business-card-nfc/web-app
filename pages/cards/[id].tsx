@@ -13,24 +13,24 @@ export async function getServerSideProps({
   try {
     const { data }: CardData = await res.json();
     return { props: { data } };
-  } catch (e: any) {
+  } catch (error: any) {
     console.error(e);
-    return { props: { data: null, errorMessage: e.message } };
+    return { props: { data: null, error: error } };
   }
 }
 
 type Props = {
   data: Card | null;
-  errorMessage: string | null;
+  error: any | null;
 };
 
-function PageCardsShow({ data, errorMessage }: Props) {
+function PageCardsShow({ data, error }: Props) {
   console.log("PageCardsShow");
   console.log({ data });
-  console.log({ errorMessage });
+  console.log({ error });
 
-  if (errorMessage) {
-    return <p>{errorMessage}</p>;
+  if (error) {
+    return <p>{error.message}</p>;
   }
 
   if (data) {
