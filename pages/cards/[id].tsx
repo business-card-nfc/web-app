@@ -14,7 +14,7 @@ export async function getServerSideProps({
     const { data }: CardData = await res.json();
     return { props: { data } };
   } catch (error: any) {
-    console.error(e);
+    console.error(error);
     return { props: { data: null, error: error } };
   }
 }
