@@ -5,40 +5,10 @@
 
 const { withSentryConfig } = require("@sentry/nextjs");
 
-// Before defining your Security Headers
-// add Content Security Policy directives using a template string.
-
-const ContentSecurityPolicy = `
-  default-src 'self';
-  script-src 'self';
-  child-src example.com;
-  style-src 'self' example.com;
-  font-src 'self';  
-`;
-
-// You can choose which headers to add to the list
-// after learning more below.
-const securityHeaders = [
-  {
-    key: "Content-Security-Policy",
-    value: ContentSecurityPolicy.replace(/\s{2,}/g, " ").trim(),
-  },
-];
-
 const moduleExports = {
   // Your existing module.exports
   reactStrictMode: true,
   swcMinify: true,
-  async headers() {
-    return [
-      {
-        // Apply these headers to all routes in your application.
-        source: "/:path*",
-        headers: securityHeaders,
-      },
-    ];
-  },
-
   sentry: {
     // Use `hidden-source-map` rather than `source-map` as the Webpack `devtool`
     // for client-side builds. (This will be the default starting in

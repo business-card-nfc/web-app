@@ -10,38 +10,58 @@ export async function getServerSideProps({
     process.env.NEXT_PUBLIC_API_ENDPOINT_URL + `/items/cards/${id}`
   );
 
-  try {
-    const { data }: CardData = await res.json();
-    return { props: { data } };
-  } catch (error: any) {
-    console.error(error);
-    return { props: { data: null, error: error } };
+  let data: CardData | null = null;
+  if (res.ok) {
+    data = await res.json();
   }
+
+  return {
+    props: {
+      processEnvNodeEnv: process.env.NODE_ENV,
+      ok: res.ok,
+      status: res.status,
+      statusText: res.statusText,
+      data: data,
+    },
+  };
 }
 
 type Props = {
+  processEnvNodeEnv: "development" | "production" | "test";
+  ok: boolean;
+  status: number;
+  statusText: string;
   data: Card | null;
-  error: any | null;
 };
 
-function PageCardsShow({ data, error }: Props) {
-  console.log("PageCardsShow");
-  console.log({ data });
-  console.log({ error });
+function PageCardsShow({
+  processEnvNodeEnv,
+  ok,
+  status,
+  statusText,
+  data,
+}: Props) {
+  return (
+    <>
+      {processEnvNodeEnv === "development" && (
+        <ul>
+          <li>ok: {ok}</li>
+          <li>status: {status}</li>
+          <li>statusText: {statusText}</li>
+        </ul>
+      )}
 
-  if (error) {
-    return <p>{error.message}</p>;
-  }
+      {!ok && <p>An error has occured, please contact the admin.</p>}
 
-  if (data) {
-    return (
-      <ul>
-        <li>{data.username}</li>
-        <li>{data.email}</li>
-        <li>{data.full_name}</li>
-      </ul>
-    );
-  }
+      {ok && data && (
+        <ul>
+          <li>{data.username}</li>
+          <li>{data.email}</li>
+          <li>{data.full_name}</li>
+        </ul>
+      )}
+    </>
+  );
 }
 
 export default PageCardsShow;
