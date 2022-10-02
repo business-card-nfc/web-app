@@ -1,34 +1,73 @@
 import { GetServerSideProps } from "next";
 import { CardData, Card } from "../../src/types";
+import * as Sentry from "@sentry/react";
 
 export async function getServerSideProps({
   query: { id },
 }: {
   query: { id: string };
 }) {
-  const res = await fetch(
-    process.env.API_ENDPOINT_URL + `/items/cards/${id}`
-  );
-  const { data }: CardData = await res.json();
-  console.log("getServerSideProps");
-  console.log({ data });
+  try {
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_API_ENDPOINT_URL + `/items/cards/${id}`
+    );
 
-  return { props: { data } };
+    let data: CardData | null = null;
+    if (res.ok) {
+      data = await res.json();
+    } else {
+      console.error(res);
+    }
+    return {
+      props: {
+        processEnvNodeEnv: process.env.NODE_ENV,
+        ok: res.ok,
+        status: res.status,
+        statusText: res.statusText,
+        data: data,
+      },
+    };
+  } catch (e) {
+    Sentry.captureException(e);
+    console.error(e);
+  }
 }
 
 type Props = {
-  data: Card;
+  processEnvNodeEnv: "development" | "production" | "test";
+  ok: boolean;
+  status: number;
+  statusText: string;
+  data: Card | null;
 };
 
-function PageCardsShow({ data }: Props) {
-  console.log("PageCardsShow");
-  console.log({ data });
+function PageCardsShow({
+  processEnvNodeEnv,
+  ok,
+  status,
+  statusText,
+  data,
+}: Props) {
   return (
-    <ul>
-      <li>{data.username}</li>
-      <li>{data.email}</li>
-      <li>{data.full_name}</li>
-    </ul>
+    <>
+      {processEnvNodeEnv === "development" && (
+        <ul>
+          <li>ok: {ok}</li>
+          <li>status: {status}</li>
+          <li>statusText: {statusText}</li>
+        </ul>
+      )}
+
+      {!ok && <p>An error has occured, please contact the admin.</p>}
+
+      {ok && data && (
+        <ul>
+          <li>{data.username}</li>
+          <li>{data.email}</li>
+          <li>{data.full_name}</li>
+        </ul>
+      )}
+    </>
   );
 }
 
