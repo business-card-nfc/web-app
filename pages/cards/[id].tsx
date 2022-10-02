@@ -1,29 +1,36 @@
 import { GetServerSideProps } from "next";
 import { CardData, Card } from "../../src/types";
+import * as Sentry from "@sentry/react";
 
 export async function getServerSideProps({
   query: { id },
 }: {
   query: { id: string };
 }) {
-  const res = await fetch(
-    process.env.NEXT_PUBLIC_API_ENDPOINT_URL + `/items/cards/${id}`
-  );
+  try {
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_API_ENDPOINT_URL + `/items/cards/${id}`
+    );
 
-  let data: CardData | null = null;
-  if (res.ok) {
-    data = await res.json();
+    let data: CardData | null = null;
+    if (res.ok) {
+      data = await res.json();
+    } else {
+      console.error(res);
+    }
+    return {
+      props: {
+        processEnvNodeEnv: process.env.NODE_ENV,
+        ok: res.ok,
+        status: res.status,
+        statusText: res.statusText,
+        data: data,
+      },
+    };
+  } catch (e) {
+    Sentry.captureException(e);
+    console.error(e);
   }
-
-  return {
-    props: {
-      processEnvNodeEnv: process.env.NODE_ENV,
-      ok: res.ok,
-      status: res.status,
-      statusText: res.statusText,
-      data: data,
-    },
-  };
 }
 
 type Props = {
